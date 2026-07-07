@@ -52,7 +52,7 @@ export function Sidebar() {
         {LINKS.map((link) => {
           const Icon = link.icon;
           const active = pathname.startsWith(link.href);
-          if (link.disabled) {
+          if ((link as any).disabled) {
             return (
               <div
                 key={link.href}
