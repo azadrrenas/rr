@@ -115,8 +115,8 @@ export function CategoryAdminPage<
           columns={columns as any}
           hasFavorite={hasFavorite}
           onEdit={(item) => router.push(`${adminBasePath}/${item.id}`)}
-          onDelete={(item) => setPendingDelete(item)}
-          onToggleFavorite={handleToggleFavorite}
+          onDelete={(item: any) => setPendingDelete(item)}
+          onToggleFavorite={(item: any) => handleToggleFavorite(item)}
         />
       )}
 
