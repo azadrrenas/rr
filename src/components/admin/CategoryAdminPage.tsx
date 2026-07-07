@@ -112,11 +112,11 @@ export function CategoryAdminPage<
       ) : (
         <GenericDataTable
           items={items as any}
-          columns={columns as any}
+          columns={columns}
           hasFavorite={hasFavorite}
           onEdit={(item) => router.push(`${adminBasePath}/${item.id}`)}
-          onDelete={(item: any) => setPendingDelete(item)}
-          onToggleFavorite={(item: any) => handleToggleFavorite(item)}
+          onDelete={(item) => setPendingDelete(item)}
+          onToggleFavorite={handleToggleFavorite}
         />
       )}
 

@@ -1,58 +1,72 @@
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 export const BUCKET = process.env.SUPABASE_STORAGE_BUCKET ?? "koleksiyon-gorseller";
 
-/**
- * Sadece sunucu tarafında (API route / Server Action) kullanılmalıdır.
- * Service role key ile RLS (Row Level Security) kurallarını atlayarak
- * dosya yükleme/silme işlemi yapar. Bu key ASLA client'a gönderilmemelidir.
- */
-export const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-  auth: { persistSession: false },
-});
+let _supabaseAdmin: SupabaseClient | null = null;
+let _supabasePublic: SupabaseClient | null = null;
 
-/** Client tarafında (public okuma) kullanılabilecek sınırlı yetkili client. */
-export const supabasePublic = createClient(supabaseUrl, anonKey);
+function getEnvOrThrow(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`[supabase] "${name}" ortam degiskeni tanimli degil.`);
+  }
+  return value;
+}
 
-/**
- * Bir dosyayı Supabase Storage'a yükler ve genel erişilebilir URL döner.
- * @param file  Yüklenecek dosya (Buffer)
- * @param path  Bucket içindeki hedef yol, örn: "perfumes/1699999999-miss-dior.jpg"
- * @param contentType  Dosyanın MIME türü
- */
+function getSupabaseAdmin(): SupabaseClient {
+  if (!_supabaseAdmin) {
+    const supabaseUrl = getEnvOrThrow("NEXT_PUBLIC_SUPABASE_URL");
+    const serviceRoleKey = getEnvOrThrow("SUPABASE_SERVICE_ROLE_KEY");
+    _supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+    });
+  }
+  return _supabaseAdmin;
+}
+
+export function getSupabasePublic(): SupabaseClient {
+  if (!_supabasePublic) {
+    const supabaseUrl = getEnvOrThrow("NEXT_PUBLIC_SUPABASE_URL");
+    const anonKey = getEnvOrThrow("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+    _supabasePublic = createClient(supabaseUrl, anonKey);
+  }
+  return _supabasePublic;
+}
+
 export async function uploadToSupabase(
   file: Buffer,
   path: string,
   contentType: string
 ): Promise<string> {
-  const { error } = await supabaseAdmin.storage
+  const admin = getSupabaseAdmin();
+  const { error } = await admin.storage
     .from(BUCKET)
     .upload(path, file, { contentType, upsert: true });
 
   if (error) {
-    throw new Error(`Supabase yükleme hatası: ${error.message}`);
+    throw new Error(`Supabase yukleme hatasi: ${error.message}`);
   }
 
-  const { data } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(path);
+  const { data } = admin.storage.from(BUCKET).getPublicUrl(path);
   return data.publicUrl;
 }
 
-/** Storage'dan bir dosyayı siler (ör. bir içerik silindiğinde kapak görseli de temizlenir). */
 export async function deleteFromSupabase(path: string): Promise<void> {
-  const { error } = await supabaseAdmin.storage.from(BUCKET).remove([path]);
-  if (error) {
-    console.error(`Supabase silme hatası: ${error.message}`);
+  try {
+    const admin = getSupabaseAdmin();
+    const { error } = await admin.storage.from(BUCKET).remove([path]);
+    if (error) {
+      console.error(`Supabase silme hatasi: ${error.message}`);
+    }
+  } catch (err) {
+    console.error(err);
   }
 }
 
-/** Public URL'den bucket-relative path çıkarır (silme işlemleri için). */
 export function extractStoragePath(publicUrl: string): string | null {
   const marker = `/object/public/${BUCKET}/`;
   const idx = publicUrl.indexOf(marker);
   if (idx === -1) return null;
   return publicUrl.slice(idx + marker.length);
 }
+ 
