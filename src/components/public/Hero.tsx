@@ -9,7 +9,7 @@ interface HeroProps {
 }
 
 export function Hero({
-  title = "Kalbinin Sevdiği Her Şey",
+  title = "HOŞGELDİNİZ ROZERİN HANIM",
   subtitle = "Küçük detaylardan büyük bir koleksiyon: onun beğendiği parfümler, çantalar, filmler ve daha fazlası, tek bir zarif adreste.",
 }: HeroProps) {
   return (

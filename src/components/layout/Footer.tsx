@@ -12,7 +12,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-white/60 py-10">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-5 px-6 text-center">
-        <p className="font-heading text-lg text-gray-800">Bizim Koleksiyonumuz</p>
+        <p className="font-heading text-lg text-gray-800">ROZAX</p>
 
         <div className="flex gap-4">
           {SOCIALS.map(({ href, label, icon: Icon }) => (

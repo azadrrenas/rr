@@ -243,3 +243,21 @@ model Settings {
 
   @@map("settings")
 }
+// ------------------------------------------------------------
+// Duyurular
+// ------------------------------------------------------------
+model Announcement {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  coverImage   String?
+  externalLink String?
+  isFavorite   Boolean  @default(false) // "Öne Çıkar / Sabitle" olarak kullanılacak
+  displayOrder Int      @default(0)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("announcements")
+  @@index([displayOrder])
+}

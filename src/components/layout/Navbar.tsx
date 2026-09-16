@@ -16,6 +16,7 @@ const NAV_LINKS = [
   { href: "/dizi-film", label: "Dizi & Film" },
   { href: "/muzik-notalari", label: "Müzik Notaları" },
   { href: "/galeri", label: "Galeri" },
+  { href: "/duyurular", label: "Duyurular" },
 ];
 
 export function Navbar() {
@@ -44,7 +45,7 @@ export function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2 font-heading text-xl font-semibold text-gray-800">
           <Sparkles className="h-5 w-5 text-accent" />
-          Bizim Koleksiyonumuz
+          ROZAX
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex">

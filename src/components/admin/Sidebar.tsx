@@ -13,12 +13,14 @@ import {
   Tv,
   Music2,
   Images,
+  Megaphone,
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/duyurular", label: "Duyurular", icon: Megaphone },
   { href: "/admin/parfumler", label: "Parfümler", icon: Sparkles },
   { href: "/admin/cantalar", label: "Çantalar", icon: ShoppingBag },
   { href: "/admin/kalemler", label: "Kalemler", icon: PenLine },
