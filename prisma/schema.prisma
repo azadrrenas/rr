@@ -1,0 +1,245 @@
+// ============================================================
+// Prisma Schema — Koleksiyon Sitesi
+// ============================================================
+// Bu şema, projenin tüm kategorileri (mevcut ve gelecekte
+// eklenecek olanlar) için ortak bir temel oluşturur.
+// Şu an tam CRUD arayüzü sadece "Perfume" (Parfümler) için
+// geliştirildi; diğer modeller ileride aynı örüntü izlenerek
+// (bkz. README.md > "Yeni Kategori Ekleme") kolayca
+// admin paneline ve public sayfalara bağlanabilir.
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------------------------------------
+// Admin / Auth
+// ------------------------------------------------------------
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("admins")
+}
+
+// ------------------------------------------------------------
+// Parfümler
+// ------------------------------------------------------------
+model Perfume {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  coverImage    String?
+  externalLink  String? // Satın Al butonu linki (Trendyol, Sephora, Boyner vb.)
+  isFavorite    Boolean  @default(false)
+  displayOrder  Int      @default(0)
+
+  brand         String?
+  notes         String? // Parfüm notaları (ör: "Vanilya, Yasemin, Amber")
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("perfumes")
+  @@index([displayOrder])
+}
+
+// ------------------------------------------------------------
+// Çantalar
+// ------------------------------------------------------------
+model Bag {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  coverImage   String?
+  externalLink String?
+  isFavorite   Boolean  @default(false)
+  displayOrder Int      @default(0)
+
+  brand        String?
+  model        String?
+  color        String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("bags")
+  @@index([displayOrder])
+}
+
+// ------------------------------------------------------------
+// Kalemler
+// ------------------------------------------------------------
+model Pen {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  coverImage   String?
+  externalLink String?
+  isFavorite   Boolean  @default(false)
+  displayOrder Int      @default(0)
+
+  brand        String?
+  model        String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("pens")
+  @@index([displayOrder])
+}
+
+// ------------------------------------------------------------
+// Kırtasiye Ürünleri (Defter, Sticker, Post-it, Ajanda, vb.)
+// ------------------------------------------------------------
+model StationeryItem {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  coverImage   String?
+  externalLink String?
+  isFavorite   Boolean  @default(false)
+  displayOrder Int      @default(0)
+
+  itemType     String? // "Defter" | "Sticker" | "Post-it" | "Ajanda" | "Washi Tape" | ...
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("stationery_items")
+  @@index([displayOrder])
+}
+
+// ------------------------------------------------------------
+// Filmler
+// ------------------------------------------------------------
+model Movie {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  coverImage   String? // Poster
+  isFavorite   Boolean  @default(false)
+  displayOrder Int      @default(0)
+
+  genre        String?
+  imdbRating   Float?
+  releaseYear  Int?
+  trailerLink  String?
+  watchLink    String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("movies")
+  @@index([displayOrder])
+}
+
+// ------------------------------------------------------------
+// Diziler
+// ------------------------------------------------------------
+model Series {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  coverImage   String?
+  isFavorite   Boolean  @default(false)
+  displayOrder Int      @default(0)
+
+  genre        String?
+  imdbRating   Float?
+  releaseYear  Int?
+  trailerLink  String?
+  watchLink    String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("series")
+  @@index([displayOrder])
+}
+
+// ------------------------------------------------------------
+// Müzik Notaları
+// ------------------------------------------------------------
+model MusicSheet {
+  id           String   @id @default(cuid())
+  title        String // Parça Adı
+  description  String?
+  coverImage   String?
+  isFavorite   Boolean  @default(false)
+  displayOrder Int      @default(0)
+
+  composer     String?
+  pdfUrl       String? // Piyano Notası PDF
+  listenLink   String?
+  youtubeLink  String?
+  spotifyLink  String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("music_sheets")
+  @@index([displayOrder])
+}
+
+// ------------------------------------------------------------
+// Galeri
+// ------------------------------------------------------------
+model GalleryPhoto {
+  id           String   @id @default(cuid())
+  title        String?
+  description  String?
+  coverImage   String // Fotoğrafın kendisi
+  isFavorite   Boolean  @default(false)
+  displayOrder Int      @default(0)
+
+  category     String? // Filtreleme için serbest metin kategori
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("gallery_photos")
+  @@index([displayOrder])
+  @@index([category])
+}
+
+// ------------------------------------------------------------
+// Kategoriler (ör. kırtasiye/galeri filtreleme için serbest liste)
+// ------------------------------------------------------------
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  @@map("categories")
+}
+
+// ------------------------------------------------------------
+// Site Ayarları (tekil satır — key/value yerine tek kayıt yaklaşımı)
+// ------------------------------------------------------------
+model Settings {
+  id              String   @id @default(cuid())
+  siteTitle       String   @default("Bizim Koleksiyonumuz")
+  siteDescription String?
+  logoUrl         String?
+  heroTitle       String?
+  heroSubtitle    String?
+  footerInfo      Json? // { email, phone, address, ... }
+  socialLinks     Json? // { instagram, spotify, pinterest, github }
+  themeColors     Json? // { primary, secondary, accent, ... } — ileride dinamik tema için
+
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
