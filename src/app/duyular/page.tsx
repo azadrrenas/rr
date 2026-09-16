@@ -96,6 +96,7 @@ export default function AnnouncementsPage() {
                 )}
 
                 {item.externalLink && (
+                    <a
                   
                     href={item.externalLink}
                     target="_blank"
